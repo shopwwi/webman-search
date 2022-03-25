@@ -3,7 +3,7 @@
 ```
 composer require shopwwi/webman-meilisearch
 ```
-
+- 如果觉得方便了你 不要吝啬你的小星星哦
 ## 使用方法
 
 - 服务器先安装meilisearch 具体方法查看https://docs.meilisearch.com/learn/getting_started/quick_start.html
