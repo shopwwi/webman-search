@@ -13,10 +13,10 @@
  *-------------------------------------------------------------------------t*
  */
 declare (strict_types = 1);
-namespace Shopwwi\WebmanMeilisearch\Facade;
+namespace Shopwwi\WebmanSearch\Facade;
+use Shopwwi\WebmanSearch\Adapter\MeiliSearch;
+
 /**
- * @see \Shopwwi\WebmanMeilisearch\MeiliSearch
- * @mixin \Shopwwi\WebmanMeilisearch\MeiliSearch
  * @method index($name) static 设置索引
  * @method q($keywords) static 查询关键词
  * @method where($column, $operator = null, $value = null, string $boolean = 'AND') static 搜索
@@ -37,17 +37,40 @@ namespace Shopwwi\WebmanMeilisearch\Facade;
  * @method highlight($attributes = []) static 设置高亮词
  * @method paginate(int $page = 1) static 获取分页
  */
-class MeiliSearch
+class Search
 {
     protected static $_instance = null;
+    protected static $_adapter = 'meilisearch';
 
+    public static function use($adapter = null,$options = ['id'=>'id','index'=>'goods'])
+    {
+        return static::getAdapter($adapter,$options);
+    }
+
+    public static function getAdapter($adapter = null, $options = ['id'=>'id','index'=>'goods'])
+    {
+        $config = \config('plugin.shopwwi.search.app', [
+            'default' => 'meilisearch',
+            'holder' =>[
+                'meilisearch'=>[
+                    'driver' => MeiliSearch::class,
+                    'key' => '',
+                    'api' => 'http://127.0.0.1:7700'
+                ],
+            ]
+        ]);
+        if($adapter == null){
+            self::$_adapter = $config['default'];
+        }else{
+            self::$_adapter = $adapter;
+        }
+        $driver = new $config['holder'][self::$_adapter]['driver'];
+        return $driver->make($config['holder'][self::$_adapter],$options);
+    }
 
     public static function instance()
     {
-        if (!static::$_instance) {
-            static::$_instance = new \Shopwwi\WebmanMeilisearch\MeiliSearch();
-        }
-        return static::$_instance;
+        return static::getAdapter();
     }
     /**
      * @param $name

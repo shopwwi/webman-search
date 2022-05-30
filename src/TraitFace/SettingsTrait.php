@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopwwi\WebmanMeilisearch\TraitFace;
+namespace Shopwwi\WebmanSearch\TraitFace;
 
 trait SettingsTrait
 {

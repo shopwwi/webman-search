@@ -13,11 +13,12 @@
  *-------------------------------------------------------------------------t*
  */
 
-namespace Shopwwi\WebmanMeilisearch;
+namespace Shopwwi\WebmanSearch\Adapter;
 
 use MeiliSearch\Client;
-use Shopwwi\WebmanMeilisearch\TraitFace\SettingsTrait;
-use Shopwwi\WebmanMeilisearch\TraitFace\WhereTrait;
+use Shopwwi\WebmanSearch\TraitFace\ModelTrait;
+use Shopwwi\WebmanSearch\TraitFace\SettingsTrait;
+use Shopwwi\WebmanSearch\TraitFace\WhereTrait;
 
 class MeiliSearch
 {
@@ -26,10 +27,11 @@ class MeiliSearch
     /**
      * The Meilisearch client.
      *
-     * @var \Shopwwi\B2b2c\Sdk\MeiliSearch
      */
     protected $meilisearch;
-    protected $index = 'goods';
+    protected $_index = 'goods';
+    protected $_id = 'id';
+    protected $_type = '_doc';
     protected $limit = 20;
     protected $sorts = [];
     protected $attributesToHighlight = [];
@@ -37,13 +39,28 @@ class MeiliSearch
     protected $facetsDistribution = [];
     protected $query = '';
 
-    public function __construct()
+    public function make($options,$other)
     {
-        $options = \config('plugin.shopwwi.meilisearch.app', [
-            'api' => 'http://127.0.0.1:7700',
-            'key' => ''
-        ]);
+        if(isset($other['id'])){
+            $this->_id = $other['id'];
+        }
+        if(isset($other['index'])){
+            $this->_index = $other['index'];
+        }
+        if(isset($other['type'])){
+            $this->_type = $other['type'];
+        }
         $this->meilisearch = new Client($options['api'],$options['key']);
+        return $this;
+    }
+
+    /**
+     * 获取自身
+     * @return mixed
+     */
+    public function us()
+    {
+        return $this->meilisearch;
     }
 
     /**
@@ -52,7 +69,7 @@ class MeiliSearch
      */
     public function index($name)
     {
-        $this->index = $name;
+        $this->_index = $name;
         return $this;
     }
 
@@ -88,7 +105,7 @@ class MeiliSearch
         $this->sorts[] = sprintf("%s:%s", $column, $rank);
         return $this;
     }
-    
+
     /**
      * 新增更新文档
      * @param $data
@@ -96,7 +113,7 @@ class MeiliSearch
      */
     public function create($data)
     {
-        $index = $this->meilisearch->index($this->index);
+        $index = $this->meilisearch->index($this->_index);
         if (!empty($data)) {
             $index->addDocuments($data);
         }
@@ -108,7 +125,7 @@ class MeiliSearch
      * @return void
      */
     public function update($data){
-        $index = $this->meilisearch->index($this->index);
+        $index = $this->meilisearch->index($this->_index);
         if (!empty($data)) {
             $index->updateDocuments($data);
         }
@@ -121,9 +138,9 @@ class MeiliSearch
      */
     public function destroy($id){
         if(is_array($id)){ //批量删除
-          return $this->meilisearch->index($this->index)->deleteDocuments($id);
+            return $this->meilisearch->index($this->_index)->deleteDocuments($id);
         }else{ //单个删除
-          return $this->meilisearch->index($this->index)->deleteDocument($id);
+            return $this->meilisearch->index($this->_index)->deleteDocument($id);
         }
     }
 
@@ -131,7 +148,7 @@ class MeiliSearch
      * 清除索引内容
      */
     public function clear(){
-      return  $this->meilisearch->index($this->index)->delete();
+        return  $this->meilisearch->index($this->_index)->delete();
     }
 
     /**
@@ -194,7 +211,10 @@ class MeiliSearch
      */
     public function first($id)
     {
-        return $this->meilisearch->index($this->index)->getDocument($id);
+        $doc = $this->meilisearch->index($this->_index)->getDocument($id);
+        $model = new ModelTrait();
+        $model->setAttributes($doc);
+        return $model;
     }
 
     /**
@@ -233,7 +253,7 @@ class MeiliSearch
      */
     protected function performSearch(array $searchParams = [])
     {
-        $meilisearch = $this->meilisearch->index($this->index);
+        $meilisearch = $this->meilisearch->index($this->_index);
         return $meilisearch->rawSearch($this->query, $searchParams);
     }
 
@@ -252,7 +272,7 @@ class MeiliSearch
                     break;
                 case 'In':
                     if($key != 0) $filter .= "  {$item['boolean']}  ";
-                   $inString =  collect($item['values'])->map(function ($value, $key) use ($item) {
+                    $inString =  collect($item['values'])->map(function ($value, $key) use ($item) {
                         return sprintf("%s = %s", $item['column'], $value);
                     })->values()->implode(' OR ');
                     $filter .= "({$inString})";

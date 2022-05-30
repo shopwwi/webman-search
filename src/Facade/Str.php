@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shopwwi\WebmanMeilisearch\Facade;
+namespace Shopwwi\WebmanSearch\Facade;
 
 use Exception;
 

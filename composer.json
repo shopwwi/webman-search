@@ -1,6 +1,6 @@
 {
-  "name": "shopwwi/webman-meilisearch",
-  "description": "meilisearch for the webman",
+  "name": "shopwwi/webman-search",
+  "description": "search for the webman",
   "keywords": ["webman", "meilisearch"],
   "type": "library",
   "require": {
@@ -12,7 +12,7 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Shopwwi\\WebmanMeilisearch\\": "src/"
+      "Shopwwi\\WebmanSearch\\": "src/"
     }
   },
   "extra": {

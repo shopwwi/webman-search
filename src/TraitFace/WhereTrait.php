@@ -13,7 +13,7 @@
  *-------------------------------------------------------------------------t*
  */
 
-namespace Shopwwi\WebmanMeilisearch\TraitFace;
+namespace Shopwwi\WebmanSearch\TraitFace;
 trait WhereTrait
 {
     protected $wheres = [];
@@ -125,7 +125,7 @@ trait WhereTrait
      */
     protected function invalidOperator($operator)
     {
-        return ! is_string($operator) || ! in_array(strtolower($operator), ['=', '!=', '>', '>=', '<', '<='], true);
+        return ! is_string($operator) || ! in_array(strtolower($operator), ['=', '!=', '>', '>=', '<', '<=','like'], true);
     }
 
 }

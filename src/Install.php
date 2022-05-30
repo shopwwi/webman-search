@@ -14,7 +14,7 @@
  */
 
 
-namespace Shopwwi\WebmanMeilisearch;
+namespace Shopwwi\WebmanSearch;
 
 
 class Install
@@ -25,7 +25,8 @@ class Install
      * @var array
      */
     protected static $pathRelation = array (
-        'config/plugin/shopwwi/meilisearch' => 'config/plugin/shopwwi/meilisearch'
+        'config/plugin/shopwwi/search' => 'config/plugin/shopwwi/search',
+        'command' => 'app/command'
     );
 
     /**
