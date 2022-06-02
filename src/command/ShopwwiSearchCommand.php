@@ -1,6 +1,6 @@
 <?php
 
-namespace app\command;
+namespace Shopwwi\WebmanSearch\Command;
 
 use Shopwwi\WebmanSearch\Facade\Str;
 use Symfony\Component\Console\Command\Command;

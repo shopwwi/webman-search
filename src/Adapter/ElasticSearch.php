@@ -18,10 +18,10 @@ namespace Shopwwi\WebmanSearch\Adapter;
 use Elastic\Elasticsearch\ClientBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Shopwwi\WebmanSearch\TraitFace\Collection;
-use Shopwwi\WebmanSearch\TraitFace\ModelTrait;
+use Shopwwi\WebmanSearch\Support\Arr;
+use Shopwwi\WebmanSearch\Support\Collection;
 use Shopwwi\WebmanSearch\TraitFace\WhereTrait;
-use Illuminate\Support\Arr;
+
 
 class ElasticSearch
 {
@@ -183,7 +183,7 @@ class ElasticSearch
                     'client' => ['ignore' => $this->ignores],
                     'body' => $v
                 ];
-                return $this->elasticsearch->index($params);
+                $this->elasticsearch->index($params);
             }
         } else {
             // 一维数组
@@ -400,9 +400,7 @@ class ElasticSearch
     {
 
         if (array_key_exists("_source", $result)) {
-            $model = new ModelTrait();
-            $model->setAttributes($result["_source"]);
-
+            $model = new Collection($result["_source"]);
             // match earlier version
             $model->_index = $result["_index"];
             $model->_type = $result["_type"];
@@ -419,14 +417,12 @@ class ElasticSearch
     /**
      * 数据整理
      * @param $result
-     * @return \Illuminate\Support\Collection
      */
     protected function getAll($result = []){
         if (array_key_exists("hits", $result)) {
             $new = [];
             foreach ($result["hits"]["hits"] as $row) {
-                $model = new ModelTrait();
-                $model->setAttributes($row["_source"]);
+                $model = new Collection($row["_source"]);
                 // match earlier version
                 $model->_index = $row["_index"];
                 $model->_type = isset($row["_type"]) ? $row["_type"] : 'doc';
@@ -435,18 +431,19 @@ class ElasticSearch
                 $model->_highlight = isset($row["highlight"]) ? $row["highlight"] : [];
                 $new[] = $model;
             }
-            $new = collect($new);
+            $collect = new Collection([]);
+            $collect->items = $new;
             $total = $result["hits"]["total"];
-            $new->total = is_array($total) ? $total["value"] : $total;
-            $new->page = request()->input('page',1);
-            $new->max_score = $result["hits"]["max_score"];
-            $new->took = $result["took"];
-            $new->timed_out = $result["timed_out"];
-            $new->scroll_id = isset($result["_scroll_id"]) ? $result["_scroll_id"] : NULL;
-            $new->shards = (object)$result["_shards"];
-            return $new;
+            $collect->total = is_array($total) ? $total["value"] : $total;
+            $collect->page = request()->input('page',1);
+            $collect->max_score = $result["hits"]["max_score"];
+            $collect->took = $result["took"];
+            $collect->timed_out = $result["timed_out"];
+            $collect->scroll_id = isset($result["_scroll_id"]) ? $result["_scroll_id"] : NULL;
+            $collect->shards = (object)$result["_shards"];
+            return $collect;
         } else {
-            return collect([]);
+            return new Collection([]);
         }
     }
 

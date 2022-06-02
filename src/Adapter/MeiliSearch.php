@@ -16,7 +16,8 @@
 namespace Shopwwi\WebmanSearch\Adapter;
 
 use MeiliSearch\Client;
-use Shopwwi\WebmanSearch\TraitFace\ModelTrait;
+use Shopwwi\WebmanSearch\Support\Collection;
+use Shopwwi\WebmanSearch\Support\Model;
 use Shopwwi\WebmanSearch\TraitFace\SettingsTrait;
 use Shopwwi\WebmanSearch\TraitFace\WhereTrait;
 
@@ -212,7 +213,7 @@ class MeiliSearch
     public function first($id)
     {
         $doc = $this->meilisearch->index($this->_index)->getDocument($id);
-        $model = new ModelTrait();
+        $model = new Model();
         $model->setAttributes($doc);
         return $model;
     }
@@ -254,7 +255,16 @@ class MeiliSearch
     protected function performSearch(array $searchParams = [])
     {
         $meilisearch = $this->meilisearch->index($this->_index);
-        return $meilisearch->rawSearch($this->query, $searchParams);
+        $result = $meilisearch->rawSearch($this->query, $searchParams);
+        $collect = new Collection([]);
+        $collect->items = $result['hits'];
+        $collect->total = $result['nbHits'];
+        $collect->exhaustiveNbHits = $result['exhaustiveNbHits'];
+        $collect->query = $result['query'];
+        $collect->limit = $result['limit'];
+        $collect->offset = $result['offset'];
+        $collect->processingTimeMs = $result['processingTimeMs'];
+        return $collect;
     }
 
     /**

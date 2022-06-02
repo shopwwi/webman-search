@@ -15,7 +15,8 @@
 
 namespace Shopwwi\WebmanSearch\Adapter;
 
-use Shopwwi\WebmanSearch\TraitFace\ModelTrait;
+use Shopwwi\WebmanSearch\Support\Collection;
+use Shopwwi\WebmanSearch\TraitFace\Model;
 use Shopwwi\WebmanSearch\TraitFace\WhereTrait;
 
 class XunSearch
@@ -52,6 +53,11 @@ class XunSearch
         $file = config_path().'/plugin/shopwwi/search/ini/'.$this->_index.'.ini';
         $this->xunsearch = new \XS($file);
         return $this;
+    }
+
+    public function us()
+    {
+        return $this->xunsearch;
     }
 
     /**
@@ -234,11 +240,10 @@ class XunSearch
         $docs = $search->search();
         $new = [];
         foreach ($docs as $val){
-            $model = new ModelTrait();
-            $model->setAttributes($val->getFields());
+            $model = new Collection($val->getFields());
             $new[] = $model;
         }
-        $new = collect($new);
+        $new = new Collection($new);
         return $new->first();
     }
 
@@ -266,7 +271,7 @@ class XunSearch
     {
         $search = $this->xunsearch->getSearch();
         $list = $search->getExpandedQuery($this->query,$this->limit);
-        $newList = collect([]);
+        $newList = new Collection([]);
         foreach ($list as $val){
             if($showNum){
                 $num = $search->count($val);
@@ -319,19 +324,18 @@ class XunSearch
         $total_cost = microtime(true) - $total_begin;
         $new = [];
         foreach ($docs as $val){
-            $model = new ModelTrait();
-            $model->setAttributes($val->getFields());
-            $new[] = $model;
+            $new[] = new Collection($val->getFields());
         }
-        $new = collect($new);
+        $collect = new Collection([]);
+        $collect->items = $new;
 //        $new->hot = $hot; //热门词汇
-        $new->total = $total; //搜索结果统计
+        $collect->total = $total; //搜索结果统计
 //        $new->count = $count; //数据库总数据
 //        $new->corrected = $corrected; //搜索提示
 //        $new->related = $related; //相关搜索
-        $new->search_cost = $search_cost; //搜索所用时间
-        $new->total_cost = $total_cost; //页面所用时间
-        return $new;
+        $collect->search_cost = $search_cost; //搜索所用时间
+        $collect->total_cost = $total_cost; //页面所用时间
+        return $collect;
     }
 
     /**
@@ -340,8 +344,8 @@ class XunSearch
      */
     protected function filters($search)
     {
-
-        collect($this->wheres)->map(function ($item,$key) use (&$search) {
+        $collect = new Collection($this->wheres);
+        $collect->map(function ($item,$key) use (&$search) {
             switch ($item['type']){
                 case 'Basic':
                     if ($item['operator'] == "=") {

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\command;
+namespace Shopwwi\WebmanSearch\Command;
 
 use Shopwwi\WebmanSearch\Facade\Search;
 use Symfony\Component\Console\Command\Command;
@@ -56,7 +56,7 @@ class SearchDropIndexCommand extends Command
                 array_keys(config('plugin.shopwwi.search.app.holder.meilisearch.indices'));
             foreach ($indices as $index) {
                 $search = Search::use($holder,['index'=>$index])->us();
-                $search->delete();
+                $search->index($index)->delete();
             }
         }else if($holder == 'xunsearch'){
             $indices = !is_null($input->getArgument('index')) ? [$input->getArgument('index')] :

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\command;
+namespace Shopwwi\WebmanSearch\Command;
 
 use Shopwwi\WebmanSearch\Facade\Search;
 use Symfony\Component\Console\Command\Command;
@@ -106,11 +106,11 @@ class SearchUpdateIndexCommand extends Command
                 $search = Search::use($holder,['index'=>$index])->us();
                 // 更新可显示字段
                 $output->writeln("set Sortable attributes");
-                $search->updateSortableAttributes($config['sortable']);
+                $search->index($index)->updateSortableAttributes($config['sortable']);
                 $output->writeln("set RankingRules");
-                $search->updateRankingRules($config['rank']);
+                $search->index($index)->updateRankingRules($config['rank']);
                 $output->writeln("set filterable attributes");
-                $search->updateFilterableAttributes($config['filterable']); // 可检索字段
+                $search->index($index)->updateFilterableAttributes($config['filterable']); // 可检索字段
             }
         }
         $output->writeln('索引更改结束');
