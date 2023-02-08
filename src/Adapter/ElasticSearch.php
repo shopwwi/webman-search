@@ -1,16 +1,18 @@
 <?php
 /**
- *-------------------------------------------------------------------------p*
+ *-------------------------------------------------------------------------s*
  * es搜索
  *-------------------------------------------------------------------------h*
  * @copyright  Copyright (c) 2015-2022 Shopwwi Inc. (http://www.shopwwi.com)
- *-------------------------------------------------------------------------c*
+ *-------------------------------------------------------------------------o*
  * @license    http://www.shopwwi.com        s h o p w w i . c o m
- *-------------------------------------------------------------------------e*
- * @link       http://www.shopwwi.com by 象讯科技 phcent.com
- *-------------------------------------------------------------------------n*
+ *-------------------------------------------------------------------------p*
+ * @link       http://www.shopwwi.com by 无锡豚豹科技 shopwwi.com
+ *-------------------------------------------------------------------------w*
  * @since      shopwwi象讯·PHP商城系统Pro
- *-------------------------------------------------------------------------t*
+ *-------------------------------------------------------------------------w*
+* author tycoonSong 8988354@qq.com
+ *-------------------------------------------------------------------------i*
  */
 
 namespace Shopwwi\WebmanSearch\Adapter;
@@ -175,6 +177,7 @@ class ElasticSearch
             throw new \Exception('你的索引参数不是一个数组');
         }
         if (isset($data[0]) && is_array($data[0])) {
+           $list = new Collection([]);
             // 多维数组
             foreach ($data as $v) {
                 $params = [
@@ -183,8 +186,10 @@ class ElasticSearch
                     'client' => ['ignore' => $this->ignores],
                     'body' => $v
                 ];
-                $this->elasticsearch->index($params);
+               $created =  $this->elasticsearch->index($params);
+               $list->push($created);
             }
+            return $list;
         } else {
             // 一维数组
             $params = [
@@ -209,6 +214,7 @@ class ElasticSearch
             throw new \Exception('你的索引参数不是一个数组');
         }
         if (isset($data[0]) && is_array($data[0])) {
+            $list = new Collection([]);
             // 多维数组
             foreach ($data as $v) {
                 $params = [
@@ -217,8 +223,10 @@ class ElasticSearch
                     'client' => ['ignore' => $this->ignores],
                     'body' => ['doc' => $v],
                 ];
-                return $this->elasticsearch->update($params);
+                $updated =  $this->elasticsearch->update($params);
+                $list->push($updated);
             }
+            return $list;
         } else {
             // 一维数组
             $params = [

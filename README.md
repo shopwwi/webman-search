@@ -1,9 +1,5 @@
-<p align="center">
-<a href="https://github.com/shopwwi/webman-search"><img src="https://travis-ci.org/shopwwi/webman-search.svg?branch=main" alt="Build Status"></a>
-<a href="https://packagist.org/packages/shopwwi/webman-search"><img src="https://poser.pugx.org/shopwwi/webman-search/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/shopwwi/webman-search"><img src="https://poser.pugx.org/shopwwi/webman-search/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/shopwwi/webman-search"><img src="https://poser.pugx.org/shopwwi/webman-search/license.svg" alt="License"></a>
-</p>
+[!['Build Status'](https://travis-ci.org/shopwwi/webman-search.svg?branch=main)](https://github.com/shopwwi/webman-scout) [!['Latest Stable Version'](https://poser.pugx.org/shopwwi/webman-search/v/stable.svg)](https://packagist.org/packages/shopwwi/webman-search) [!['Total Downloads'](https://poser.pugx.org/shopwwi/webman-search/d/total.svg)](https://packagist.org/packages/shopwwi/webman-search) [!['License'](https://poser.pugx.org/shopwwi/webman-search/license.svg)](https://packagist.org/packages/shopwwi/webman-search)
+
 # 安装
 
 ```
