@@ -260,8 +260,8 @@ class MeiliSearch
         $result = $meilisearch->rawSearch($this->query, $searchParams);
         $collect = new Collection([]);
         $collect->items = $result['hits'];
-        $collect->total = $result['nbHits'];
-        $collect->exhaustiveNbHits = $result['exhaustiveNbHits'];
+        $collect->total = $result['nbHits'] ?? $result['estimatedTotalHits'] ?? 1;
+      //  $collect->exhaustiveNbHits = $result['exhaustiveNbHits'];
         $collect->query = $result['query'];
         $collect->limit = $result['limit'];
         $collect->offset = $result['offset'];
