@@ -4,8 +4,8 @@
   "keywords": ["webman", "meilisearch"],
   "type": "library",
   "require": {
-    "php": ">=7.2 || 8.0",
-    "meilisearch/meilisearch-php": "^0.23.1",
+    "php": ">=7.2 || ^8.0",
+    "meilisearch/meilisearch-php": "^1.0",
     "guzzlehttp/guzzle": "^7.0",
     "webman/console": "^1.0"
   },
