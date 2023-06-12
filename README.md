@@ -18,7 +18,7 @@ composer require hightman/xunsearch
 ```
 composer require meilisearch/meilisearch-php
 ```
-- elasticsearch 使用elasticsearch选定器
+- elasticsearch 使用elasticsearch选定器（需8.0以上版本）
 ```
 composer require elasticsearch/elasticsearch
 ```
