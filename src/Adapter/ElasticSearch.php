@@ -443,7 +443,7 @@ class ElasticSearch
             $collect->items = $new;
             $total = $result["hits"]["total"];
             $collect->total = is_array($total) ? $total["value"] : $total;
-            $collect->page = request()->input('page',1);
+            $collect->page = request() ? request()->input('page',1) : 1;
             $collect->max_score = $result["hits"]["max_score"];
             $collect->took = $result["took"];
             $collect->timed_out = $result["timed_out"];
