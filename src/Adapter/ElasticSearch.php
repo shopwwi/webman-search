@@ -34,6 +34,7 @@ class ElasticSearch
     protected $_id = 'id';
     protected $_type = '_doc';
     protected $limit = 15;
+    protected $page = 1;
     protected $sort = [];
     protected $ignores = [];
     protected $attributesToHighlight = [];
@@ -292,6 +293,17 @@ class ElasticSearch
     }
 
     /**
+     * 设置查询页码
+     * @param $limit
+     * @return $this
+     */
+    public function page(int $page)
+    {
+        $this->page = $page;
+        return $this;
+    }
+
+    /**
      * 高亮查询
      * @param array $attributes
      * @return $this
@@ -339,6 +351,7 @@ class ElasticSearch
      */
     public function paginate(int $page = 1)
     {
+        $this->page = $page;
         $filters = [
             'offset' => ($page - 1) * $this->limit,
         ];
@@ -443,7 +456,7 @@ class ElasticSearch
             $collect->items = $new;
             $total = $result["hits"]["total"];
             $collect->total = is_array($total) ? $total["value"] : $total;
-            $collect->page = request() ? request()->input('page',1) : 1;
+            $collect->page = request() ? request()->input('page',1) : $this->page;
             $collect->max_score = $result["hits"]["max_score"];
             $collect->took = $result["took"];
             $collect->timed_out = $result["timed_out"];
