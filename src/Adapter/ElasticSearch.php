@@ -68,6 +68,9 @@ class ElasticSearch
         // Instantiate a new ClientBuilder
         $clientBuilder = ClientBuilder::create();
         $clientBuilder->setHosts($config["hosts"]);
+  
+        $clientBuilder->setHttpClientOptions(['verify'=>false]);
+
         $clientBuilder = $this->configureLogging($clientBuilder, $config);
         if (!empty($config['handler'])) {
             $clientBuilder->setHandler($config['handler']);
@@ -188,7 +191,7 @@ class ElasticSearch
                     'body' => $v
                 ];
                $created =  $this->elasticsearch->index($params);
-               $list->push($created);
+               $list->prepend($created);
             }
             return $list;
         } else {
@@ -225,7 +228,7 @@ class ElasticSearch
                     'body' => ['doc' => $v],
                 ];
                 $updated =  $this->elasticsearch->update($params);
-                $list->push($updated);
+                $list->prepend($updated);
             }
             return $list;
         } else {
@@ -362,25 +365,14 @@ class ElasticSearch
      * 获取建议词
      * @return void
      */
-    public function suggest($showNum = false)
+    public function suggest($suggest = [])
     {
         $query = [
             'index' => $this->_index,
             'type'=> $this->_type,
-            'suggest_field' => 'goods_name',
-            'suggest_text' => $this->query,
-            'suggest_mode' => 'always',
-            'suggest_size' => 20,
-//            'body' => [
-//                'suggest' => [
-//                    'song-suggest' => [
-//                        'prefix' => $this->query,
-//                        'completion' => [
-//                          'field'=>'goods_mame.py'
-//                        ]
-//                    ]
-//                ]
-//            ]
+            'body' => [
+                $suggest
+            ]
         ];
         $result = $this->elasticsearch->search($query);
         return $result->asArray();
