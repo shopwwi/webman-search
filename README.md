@@ -129,6 +129,16 @@ php webman search:drop:index  //删除索引
     $result = $search->where('type','B')->limit(20)->highlight(['title'])->q('我')->paginate(\request()->input('page',1));
 
  ```
+- elasticSearch新升级whereRaw特定写法 支持query下的全部写法
+```php
+    $search->whereRaw(['bool'=>['filter'=>[['term'=>['color'=>'red']],['term'=>['color'=>'blue']]]]]);
+    $search->whereRaw(['bool'=>['must'=>[['term'=>['color'=>'red']],['term'=>['color'=>'blue']]]]]);
+    // 如需使用aggs
+    $result = $search->aggs(['avg_price'=>['avg'=>['field'=>'price']]])->q('华为')->get();
+     // 获取原文返回内容
+    $result->raw
+```
+
 - 获取建议词（如搜索s则会出现与s相关的汉字数组 ,meilisearch不支持，es请使用原sdk方法查询）
 ```php
     

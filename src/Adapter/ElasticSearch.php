@@ -38,6 +38,7 @@ class ElasticSearch
     protected $sort = [];
     protected $ignores = [];
     protected $attributesToHighlight = [];
+    protected $attributesAggregations = [];
     protected $searchable = [];
     protected $facetsDistribution = [];
     protected $query = '';
@@ -316,6 +317,10 @@ class ElasticSearch
         $this->attributesToHighlight = $attributes;
         return $this;
     }
+    public function aggs(array $attributes = []){
+        $this->attributesAggregations = $attributes;
+        return $this;
+    }
 
     public function facets(array $attributes = ['*'])
     {
@@ -416,10 +421,11 @@ class ElasticSearch
             $model = new Collection($result["_source"]);
             // match earlier version
             $model->_index = $result["_index"];
-            $model->_type = $result["_type"];
+            $model->_type = $result["_type"] ?? '';
             $model->_id = $result["_id"];
             $model->_score = $result["_score"] ?? [];
             $model->_highlight = isset($result["highlight"]) ? $result["highlight"] : [];
+            $model->raw = $result;
             $new = $model;
         } else {
             $new = NULL;
@@ -446,6 +452,7 @@ class ElasticSearch
             }
             $collect = new Collection([]);
             $collect->items = $new;
+            $collect->raw = $result;
             $total = $result["hits"]["total"];
             $collect->total = is_array($total) ? $total["value"] : $total;
             $collect->page = request() ? request()->input('page',1) : $this->page;
@@ -487,7 +494,7 @@ class ElasticSearch
                         $body["query"]["bool"]["filter"][] = ["range" => [$item['column'] => ["lte" => $item['value']]]];
                     }
                     if ($item['operator'] == "like") {
-                        $body["query"]["bool"]["must"][] = ["match" => [$item['column'] => $item['value']]];
+                        $body["query"]["bool"]["filter"][] = ["match" => [$item['column'] => $item['value']]];
                     }
                     if ($item['operator'] == "exists") {
                         if (!$item['value']) {
@@ -504,10 +511,10 @@ class ElasticSearch
                     $body["query"]["bool"]["must_not"][] = ["terms" => [$item['column'] => $item['value']]];
                     break;
                 case 'Raw':
-
+                    $body["query"] = array_merge_recursive($body["query"] ?? [],$item['sql']) ;
                     break;
                 case 'Between':
-                    $body["query"]["bool"]["filter"][] = ["range" => [$item['column'] => ["gte" => $item['values'][0], "lte" => $item['values'][1]]]];
+                    $body["query"]["bool"]["must"][] = ["range" => [$item['column'] => ["gte" => $item['values'][0], "lte" => $item['values'][1]]]];
                     break;
                 case 'NotBetween':
                     $body["query"]["bool"]["must_not"][] = ["range" => [$item['column'] => ["gte" => $item['values'][0], "lte" => $item['values'][1]]]];
@@ -528,9 +535,12 @@ class ElasticSearch
         if(count($body["query"]) == 0){
             unset($body["query"]);
         }
-//        if(count($this->attributesToHighlight)){
-//            $body["highlight"]['fields'] = $this->attributesToHighlight;
-//        }
+        if(!empty($this->attributesToHighlight)){
+            $body["highlight"]['fields'] = $this->attributesToHighlight;
+        }
+        if(!empty($this->attributesAggregations)){
+            $body['aggs'] = $this->attributesAggregations;
+        }
         if (count($this->sort)) {
             $sortFields = array_key_exists("sort", $body) ? $body["sort"] : [];
             $body["sort"] = array_unique(array_merge($sortFields, $this->sort), SORT_REGULAR);
